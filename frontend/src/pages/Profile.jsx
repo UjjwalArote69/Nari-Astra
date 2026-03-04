@@ -2,10 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore'; 
-import { Package, Settings, LogOut, User, MapPin, Plus, ShieldCheck } from 'lucide-react';
-
+import { Package, Settings, LogOut, User, MapPin, Plus, ShieldCheck, Trash2 } from 'lucide-react';
 const Profile = () => {
-  const { user, logout, isLoggedIn, changePassword, fetchAddresses, addAddress, isLoading, error } = useAuthStore();
+  const { user, logout, isLoggedIn, changePassword, fetchAddresses, addAddress, deleteAddress, isLoading, error } = useAuthStore();
   const navigate = useNavigate();
 
   // Navigation and Feedback State
@@ -58,6 +57,20 @@ const Profile = () => {
         setSuccessMsg("Address added successfully");
         setNewAddress({ street: '', city: '', state: '', zip: '' });
         loadAddresses();
+    }
+  };
+
+  const handleDeleteAddress = async (id) => {
+    // Optional: Add a confirmation dialog
+    if (window.confirm("Are you sure you want to delete this address?")) {
+        const result = await deleteAddress(id);
+        if (result.success) {
+            setSuccessMsg("Address deleted successfully");
+            loadAddresses(); // Refresh the list
+        } else {
+            // Handle error (optional)
+            alert(result.message);
+        }
     }
   };
 
@@ -141,13 +154,22 @@ const Profile = () => {
                 <h3 className="text-2xl font-serif text-[#d4b982] mb-6 uppercase tracking-widest">Saved Addresses</h3>
                 
                 <div className="grid grid-cols-1 gap-4 mb-8">
-                    {addresses.length > 0 ? addresses.map((addr, idx) => (
-                        <div key={idx} className="p-4 bg-black/30 border border-white/5 rounded-lg flex items-start gap-3">
-                            <MapPin size={16} className="text-[#d4b982] mt-1" />
-                            <div>
-                                <p className="text-white text-sm">{addr.street}</p>
-                                <p className="text-gray-400 text-xs">{addr.city}, {addr.state} - {addr.zip}</p>
+                    {addresses.length > 0 ? addresses.map((addr) => (
+                        <div key={addr.id} className="p-4 bg-black/30 border border-white/5 rounded-lg flex items-start justify-between gap-3">
+                            <div className="flex items-start gap-3">
+                                <MapPin size={16} className="text-[#d4b982] mt-1" />
+                                <div>
+                                    <p className="text-white text-sm">{addr.street}</p>
+                                    <p className="text-gray-400 text-xs">{addr.city}, {addr.state} - {addr.zip}</p>
+                                </div>
                             </div>
+                            <button 
+                                onClick={() => handleDeleteAddress(addr.id)}
+                                className="p-2 text-gray-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
+                                title="Delete Address"
+                            >
+                                <Trash2 size={16} />
+                            </button>
                         </div>
                     )) : (
                         <p className="text-gray-500 text-sm italic">No addresses saved yet.</p>

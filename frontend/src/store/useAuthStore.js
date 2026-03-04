@@ -210,6 +210,22 @@ export const useAuthStore = create(
           };
         }
       },
+
+      deleteAddress: async (addressId) => {
+        try {
+          await api.delete(`/addresses/${addressId}`);
+          return {
+            success: true,
+            message: "Address deleted successfully",
+          };
+        } catch (err) {
+          return {
+            success: false,
+            message:
+              err.response?.data?.message || "Failed to delete address",
+          };
+        }
+      },
     }),
     { name: "nari-astra-auth" },
   ),

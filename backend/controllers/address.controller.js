@@ -32,3 +32,24 @@ export const getUserAddresses = async (req, res) => {
         res.status(500).json({ message: "Error fetching addresses", error: error.message });
     }
 }
+
+// Delete user address
+export const deleteUserAddress = async (req, res) => {
+    const user_id = req.user.id;
+    const address_id = req.params.id;
+
+    try {
+        const [result] = await db.query(
+            'DELETE FROM addresses WHERE id = ? AND user_id = ?',
+            [address_id, user_id]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "Address not found or unauthorized to delete" });
+        }
+
+        res.status(200).json({ message: "Address deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ message: "Error deleting address", error: error.message });
+    }
+}
