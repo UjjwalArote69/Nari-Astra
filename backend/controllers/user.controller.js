@@ -1,11 +1,21 @@
 import db from '../config/db.js';
 import bcrypt from 'bcrypt';
 import { OAuth2Client } from 'google-auth-library';
+import jwt from 'jsonwebtoken';
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
+// Helper function to generate JWT tokens
+const generateToken = (id) => {
+    return jwt.sign({id}, process.env.JWT_SECRET, {
+        expiresIn: '1d', // Token expires in 1 day
+    });
+};
+
+
+
 // Create a new user (Register)
-export const registerUser = async (req, res) => {
+export const registerUser = async (req, res, next) => {
     const { name, email, password } = req.body;
     
     if (!password || password.length < 6) {
@@ -16,16 +26,32 @@ export const registerUser = async (req, res) => {
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
+        // 1. Insert the user into the database
         const [result] = await db.query(
             'INSERT INTO users (name, email, password) VALUES (?, ?, ?)',
             [name, email, hashedPassword]
         );
-        res.status(201).json({ message: "User created", userId: result.insertId });
+
+        // 2. Generate a token using the newly created user's ID
+        const token = generateToken(result.insertId);
+
+        // 3. Send back the token and the user's basic info (excluding the password)
+        res.status(201).json({ 
+            message: "User created and logged in successfully", 
+            user: {
+                id: result.insertId,
+                name: name,
+                email: email
+            },
+            token: token
+        });
+
     } catch (error) {
         if (error.code === 'ER_DUP_ENTRY') {
             return res.status(400).json({ message: "Email is already registered" });
         }
-        res.status(500).json({ message: "Error creating user", error: error.message });
+        // Pass any other errors to the global error handler
+        next(error);
     }
 }
 
@@ -53,12 +79,15 @@ export const loginUser = async (req, res) => {
             return res.status(401).json({ message: "Invalid email or password" });
         }
 
+        const token = generateToken(user.id);
+
         // 3. Success! Remove the hash before sending user data back
         const { password: _, ...userData } = user;
 
         res.status(200).json({ 
             message: "Login successful", 
-            user: userData 
+            user: userData,
+            token: token
         });
 
     } catch (error) {
@@ -111,12 +140,15 @@ export const googleLogin = async (req, res) => {
             user = users[0];
         }
 
+        const jwtToken = generateToken(user.id);
+
         // 4. Remove password before sending back
         const { password: _, ...userData } = user;
 
         res.status(200).json({
             message: "Google login successful",
-            user: userData
+            user: userData,
+            token: jwtToken
         });
 
     } catch (error) {

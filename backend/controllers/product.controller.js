@@ -22,7 +22,7 @@ export const getAllProducts = async (
 };
 
 //2. GET A SINGLE PRODUCT
-export const getPRoductById = async (req, res) => {
+export const getProductById = async (req, res) => {
     try {
         const [rows] = await db.query('SELECT * FROM products WHERE id = ?', [req.params.id]);
         if(rows.length === 0) return res.status(404).json({message:"Product not found"});
