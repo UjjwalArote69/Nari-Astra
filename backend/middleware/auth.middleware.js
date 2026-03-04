@@ -26,24 +26,25 @@ export const protectRoute = (
         id: decoded.id,
       };
 
-      next();
+      return next();
     } catch (error) {
       console.error(
         "JWT Verification Error:",
         error.message,
       );
-      return res
-        .status(401)
-        .json({
-          message:
-            "Not authorized, token failed",
-        });
+      return res.status(401).json({
+        message:
+          "Not authorized, token failed",
+      });
     }
-
-
   }
 
   if (!token) {
-    return res.status(401).json({message:"Not authorized, no token"});
+    return res
+      .status(401)
+      .json({
+        message:
+          "Not authorized, no token",
+      });
   }
 };
