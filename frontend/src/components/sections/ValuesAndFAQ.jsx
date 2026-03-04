@@ -137,7 +137,7 @@ const ValuesAndFAQ = () => {
       </section>
 
       {/* FAQ SECTION */}
-      <section className="faq-section py-24 px-6 bg-[#181818] overflow-hidden">
+      <section id='faq' className="faq-section py-24 px-6 bg-[#181818] overflow-hidden">
         <div className="max-w-3xl mx-auto">
           
           <h2 className="faq-title opacity-0 text-4xl md:text-5xl font-serif text-center text-[#c2a353] mb-16 tracking-wide drop-shadow-sm">

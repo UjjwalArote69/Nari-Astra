@@ -128,7 +128,7 @@ export const googleLogin = async (req, res) => {
 export const changePassword = async (req, res) => {
     const { email, oldPassword, newPassword } = req.body;
 
-    if (!password || newPassword.length < 6) {
+    if (!newPassword || newPassword.length < 6) {
         return res.status(400).json({ message: "New password must be at least 6 characters long" });
     }
 

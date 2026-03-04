@@ -9,13 +9,12 @@ const Hero = () => {
   const titleRef = useRef(null);
   const textRef = useRef(null);
   const btnRef = useRef(null);
-  // const navigate = Navigate();
 
   useEffect(() => {
     let ctx = gsap.context(() => {
       // ADDED: delay of 2.8 seconds to wait for the premium loader to finish!
       const tl = gsap.timeline({ 
-        delay: 2.8, 
+        delay: 1.5, 
         defaults: { ease: "power3.out" } 
       });
 
