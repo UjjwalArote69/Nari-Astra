@@ -22,6 +22,10 @@ export const useAuthStore = create(
               "/users/login",
               credentials,
             );
+          localStorage.setItem(
+            "token",
+            response.data.token,
+          );
           set({
             user: response.data.user,
             isLoggedIn: true,
@@ -55,6 +59,10 @@ export const useAuthStore = create(
               "/users/register",
               userData,
             );
+          localStorage.setItem(
+            "token",
+            response.data.token,
+          );
           set({
             user: response.data.user,
             isLoggedIn: true,
@@ -154,14 +162,17 @@ export const useAuthStore = create(
         }
       },
 
-      logout: () =>
+      logout: () => {
+        localStorage.removeItem(
+          "token",
+        );
         set({
           user: null,
           isLoggedIn: false,
           error: null,
-        }),
+        });
+      },
 
-      // Add these inside your useAuthStore.js
       fetchAddresses: async () => {
         try {
           const response =
